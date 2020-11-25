@@ -49,27 +49,15 @@
   </f7-page>
 </template>
 <script>
+import {mixin}  from "../../js/mixin";
   export default{
+    mixins : [mixin],
     data(){
       return{
         name : null,
         email:null,
         password:null,
         image_url : 'https://trello-attachments.s3.amazonaws.com/5fbaad0aa62b6b0adf50f90e/5fbe7fc0a1b4785c81738b75/65c7e12549baaded32274744f216fa9a/PinClipart.com_playing-video-games-black_1486972.png'
-      }
-    },
-    computed : {
-      alert_message(){
-          return this.$store.getters.alert_message
-      }
-    },
-    watch : {
-      alert_message(value){
-        const self = this
-        this.showToastBottom(value)
-        setTimeout(() => {
-          self.$store.commit('setAlertMessage', null)
-        }, 200)
       }
     },
     methods : {
@@ -82,19 +70,6 @@
           payload.photoURL = this.image_url
         this.$store.dispatch('signUp', payload)
       },
-      showToastBottom(text) {
-        const self = this;
-        // Create toast
-        if (!self.toastBottom || self.toastBottom.destroyed) {
-          self.toastBottom = self.$f7.toast.create({
-            text: text,
-            closeTimeout: 2000,
-            destroyOnClose:true
-          });
-        }
-        // Open it
-        self.toastBottom.open();
-      },      
     }
   }
 </script>
