@@ -3,7 +3,7 @@
     <f7-navbar title="Signup" back-link="Back"></f7-navbar>
 
       <div class="wrapper">
-        <img class="image--cover" :src="image_url" alt='avatar'>
+        <img class="image--cover" :src="image_url" alt='avatar' @click="launchFilePicker">
       </div>
 
       <f7-list no-hairlines-md>
@@ -43,6 +43,7 @@
       <f7-block>
 
         <f7-button outline @click="signUp">Signup</f7-button>
+        <input type="file" ref="file" name="file" style="display :none;" @change="onFilePicked">
         
       </f7-block>
 
@@ -56,11 +57,35 @@ import {mixin}  from "../../js/mixin";
       return{
         name : null,
         email:null,
-        password:null,
-        image_url : 'https://trello-attachments.s3.amazonaws.com/5fbaad0aa62b6b0adf50f90e/5fbe7fc0a1b4785c81738b75/65c7e12549baaded32274744f216fa9a/PinClipart.com_playing-video-games-black_1486972.png'
+        password:null        
+      }
+    },
+    computed : {
+      image_url(){
+        return this.$store.getters.image_url
+      },
+      files(){
+        return this.$store.getters.files
+      },
+      signed_up(){
+        return this.$store.getters.signed_up
+      }
+    },
+    watch : {
+      signed_up(value){        
+        if(value == true){
+          this.$f7router.navigate('/signin/');
+        }
       }
     },
     methods : {
+      launchFilePicker(){
+          this.$refs.file.click()  
+      },
+      onFilePicked(){
+          //read the image file
+        this.$store.dispatch('readFile')
+      },
       signUp(){
           const self = this
           var payload = {}
@@ -68,8 +93,25 @@ import {mixin}  from "../../js/mixin";
           payload.email = this.email
           payload.password = this.password
           payload.photoURL = this.image_url
-        this.$store.dispatch('signUp', payload)
+
+
+          if(self.files){
+            self.$store.dispatch('uploadFile').then(url => {
+              payload.photoURL = url
+              self.$store.dispatch('signUp', payload)
+            })
+
+
+
+            // setTimeout(() => this.$f7router.navigate('/signin/'), 3000)            
+          }else {
+            this.$store.dispatch('signUp', payload)
+          }
+
       },
+    },
+    created(){
+      this.$store.commit('setSignedUp', false)
     }
   }
 </script>
